@@ -1,0 +1,3 @@
+{
+  "/assessment/quiz/[category]/page": "app/assessment/quiz/[category]/page.js"
+}
