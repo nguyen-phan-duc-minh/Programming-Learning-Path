@@ -1,0 +1,30 @@
+{
+  "name": "programming-learning-path-website",
+  "version": "1.0.0",
+  "description": "A website for suggesting programming learning paths like Codefinity",
+  "main": "index.js",
+  "scripts": {
+    "dev": "./run-dev.sh",
+    "setup": "./setup.sh",
+    "backend": "cd backend && python3 app.py",
+    "frontend": "cd frontend && npm run dev",
+    "install-all": "cd backend && pip3 install -r requirements.txt && cd ../frontend && npm install",
+    "build": "cd frontend && npm run build",
+    "test-api": "curl http://localhost:5001/api/health"
+  },
+  "keywords": [
+    "programming",
+    "learning",
+    "education",
+    "flask",
+    "nextjs",
+    "typescript",
+    "sqlite"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nguyen-phan-duc-minh/Programming-Learning-Path.git"
+  }
+}
