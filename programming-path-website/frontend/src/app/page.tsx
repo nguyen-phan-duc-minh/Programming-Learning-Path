@@ -3,6 +3,53 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 
+interface MenuSidebarProps {
+  showMenu: boolean
+  setShowMenu: (show: boolean) => void
+}
+
+const MenuSidebar = ({ showMenu, setShowMenu }: MenuSidebarProps) => (
+  <div className={`fixed inset-y-0 right-0 w-80 bg-gray-800 shadow-2xl transform transition-transform duration-300 ease-in-out z-50 ${
+    showMenu ? 'translate-x-0' : 'translate-x-full'
+  }`}>
+    <div className="p-6">
+      <button
+        onClick={() => setShowMenu(false)}
+        className="absolute top-6 right-6 text-gray-400 hover:text-white"
+      >
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+
+      <div className="mt-12 space-y-6">
+        <a href="#" className="block text-orange-500 hover:text-orange-400 text-lg">Terms & conditions</a>
+        <a href="#" className="block text-orange-500 hover:text-orange-400 text-lg">Privacy policy</a>
+        <a href="#" className="block text-orange-500 hover:text-orange-400 text-lg">Cookie policy</a>
+        <a href="#" className="block text-orange-500 hover:text-orange-400 text-lg">Subscription terms</a>
+        <a href="#" className="block text-orange-500 hover:text-orange-400 text-lg">Online Dispute Resolution</a>
+      </div>
+
+      <div className="mt-12 pt-6 border-t border-gray-700">
+        <h3 className="text-white font-semibold mb-2">Contact us</h3>
+        <a href="mailto:support@codefinity.com" className="text-orange-500 hover:text-orange-400">
+          support@codefinity.com
+        </a>
+      </div>
+
+      <div className="mt-6">
+        <h3 className="text-white font-semibold mb-2">Address</h3>
+        <p className="text-gray-400 text-sm">
+          Ucode Limited<br />
+          Florinis 7,<br />
+          Greg Tower, 2nd Floor,<br />
+          1065, Nicosia, Cyprus
+        </p>
+      </div>
+    </div>
+  </div>
+)
+
 export default function Home() {
   const router = useRouter()
   const [showMenu, setShowMenu] = useState(false)
@@ -14,48 +61,6 @@ export default function Home() {
     router.push('/auth')
   }
 
-  const MenuSidebar = () => (
-    <div className={`fixed inset-y-0 right-0 w-80 bg-gray-800 shadow-2xl transform transition-transform duration-300 ease-in-out z-50 ${
-      showMenu ? 'translate-x-0' : 'translate-x-full'
-    }`}>
-      <div className="p-6">
-        <button
-          onClick={() => setShowMenu(false)}
-          className="absolute top-6 right-6 text-gray-400 hover:text-white"
-        >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
-
-        <div className="mt-12 space-y-6">
-          <a href="#" className="block text-orange-500 hover:text-orange-400 text-lg">Terms & conditions</a>
-          <a href="#" className="block text-orange-500 hover:text-orange-400 text-lg">Privacy policy</a>
-          <a href="#" className="block text-orange-500 hover:text-orange-400 text-lg">Cookie policy</a>
-          <a href="#" className="block text-orange-500 hover:text-orange-400 text-lg">Subscription terms</a>
-          <a href="#" className="block text-orange-500 hover:text-orange-400 text-lg">Online Dispute Resolution</a>
-        </div>
-
-        <div className="mt-12 pt-6 border-t border-gray-700">
-          <h3 className="text-white font-semibold mb-2">Contact us</h3>
-          <a href="mailto:support@codefinity.com" className="text-orange-500 hover:text-orange-400">
-            support@codefinity.com
-          </a>
-        </div>
-
-        <div className="mt-6">
-          <h3 className="text-white font-semibold mb-2">Address</h3>
-          <p className="text-gray-400 text-sm">
-            Ucode Limited<br />
-            Florinis 7,<br />
-            Greg Tower, 2nd Floor,<br />
-            1065, Nicosia, Cyprus
-          </p>
-        </div>
-      </div>
-    </div>
-  )
-
   return (
     <div className="min-h-screen bg-gray-900 text-white">
       {showMenu && (
@@ -65,7 +70,7 @@ export default function Home() {
         />
       )}
 
-      <MenuSidebar />
+      <MenuSidebar showMenu={showMenu} setShowMenu={setShowMenu} />
 
       <header className="flex justify-between items-center p-6">
         <div className="flex items-center space-x-2">
@@ -102,7 +107,7 @@ export default function Home() {
               className="bg-orange-500 hover:bg-orange-600 text-white p-8 rounded-2xl flex items-center justify-between transition-all transform hover:scale-105"
             >
               <span className="text-xl font-semibold text-left">Software Development</span>
-              <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center flex-shrink-0 ml-4">
+              <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center shrink-0 ml-4">
                 <span className="text-3xl">⚙️</span>
               </div>
             </button>
@@ -112,7 +117,7 @@ export default function Home() {
               className="bg-orange-500 hover:bg-orange-600 text-white p-8 rounded-2xl flex items-center justify-between transition-all transform hover:scale-105"
             >
               <span className="text-xl font-semibold text-left">Data Science / Analytics</span>
-              <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center flex-shrink-0 ml-4">
+              <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center shrink-0 ml-4">
                 <span className="text-3xl">📊</span>
               </div>
             </button>
@@ -122,7 +127,7 @@ export default function Home() {
               className="bg-orange-500 hover:bg-orange-600 text-white p-8 rounded-2xl flex items-center justify-between transition-all transform hover:scale-105"
             >
               <span className="text-xl font-semibold text-left">Both</span>
-              <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center flex-shrink-0 ml-4">
+              <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center shrink-0 ml-4">
                 <span className="text-2xl">📊⚙️</span>
               </div>
             </button>
