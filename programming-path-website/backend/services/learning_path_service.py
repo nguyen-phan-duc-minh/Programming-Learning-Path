@@ -48,15 +48,19 @@ class LearningPathService:
         
         # Create daily schedules
         for day, topic_data in enumerate(topics, 1):
+            # Ensure all fields have proper defaults
+            videos = topic_data.get('videos', [])
+            resources = topic_data.get('resources', [])
+            
             daily_schedule = DailySchedule(
                 learning_path_id=learning_path.id,
                 day_number=day,
-                title=topic_data['title'],
-                content=topic_data['content'],
+                title=topic_data.get('title', f'Day {day}'),
+                content=topic_data.get('content', 'Content coming soon'),
                 estimated_hours=topic_data.get('hours', 1.0),
                 topics=json.dumps(topic_data.get('topics', [])),
-                videos=json.dumps(topic_data.get('videos', [])),
-                resources=json.dumps(topic_data.get('resources', []))
+                videos=json.dumps(videos if videos else []),
+                resources=json.dumps(resources if resources else [])
             )
             db.session.add(daily_schedule)
         

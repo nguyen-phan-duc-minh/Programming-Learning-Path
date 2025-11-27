@@ -10,14 +10,8 @@ def submit_survey():
     try:
         data = request.get_json()
         
-        # Validate required fields
-        required_fields = [
-            'role', 'experience_level', 'motivation', 'time_commitment', 
-            'devices', 'learning_style', 'interests', 'confidence_level',
-            'career_impact', 'stress_level', 'uncertainty', 'barriers',
-            'python_benefits', 'quick_learning', 'self_taught', 
-            'data_growth', 'salary_potential', 'age_range'
-        ]
+        # Basic validation - only check for absolutely required fields
+        required_fields = ['role', 'experience_level']
         
         for field in required_fields:
             if field not in data:
@@ -29,6 +23,9 @@ def submit_survey():
         return jsonify(result), 201
         
     except Exception as e:
+        print(f"Error in submit_survey: {str(e)}")
+        import traceback
+        traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
 

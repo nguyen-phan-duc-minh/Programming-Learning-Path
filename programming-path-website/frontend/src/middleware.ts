@@ -16,11 +16,12 @@ export function middleware(request: NextRequest) {
   const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route))
   const isAuthRoute = authRoutes.some(route => pathname.startsWith(route))
 
-  // Redirect to auth if trying to access protected route without token
-  if (isProtectedRoute && !authToken) {
-    const url = request.nextUrl.clone()
-    url.pathname = '/auth'
-    return NextResponse.redirect(url)
+  // For dashboard, we'll handle auth check in the page component
+  // since we need to check localStorage for tempAccessToken
+  // Middleware can't access localStorage, so we let the page handle it
+  if (isProtectedRoute) {
+    // Allow access, let the page component handle the auth check
+    return NextResponse.next()
   }
 
   // Redirect to dashboard if trying to access auth route with token

@@ -1,18 +1,51 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { apiService } from '@/services/api.service'
 import { storageService } from '@/services/storage.service'
-import { ProgressBar } from '@/components/ui'
+import { ProgressBar, UserAvatar } from '@/components/ui'
 import { SURVEY_QUESTIONS, type Question } from '@/constants/questions'
 import type { SurveyData } from '@/types'
+import type { User } from '@/lib/api'
 
 export default function Survey() {
   const router = useRouter()
   const [currentStep, setCurrentStep] = useState(0)
   const [surveyData, setSurveyData] = useState<Partial<SurveyData>>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isInitialized, setIsInitialized] = useState(false)
+  const [user, setUser] = useState<User | null>(null)
+
+  // Load role from localStorage on client side only
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const role = localStorage.getItem('selectedRole')
+      if (role) {
+        setSurveyData({ role })
+      }
+      
+      // Load user info from localStorage
+      const storedUser = localStorage.getItem('user')
+      if (storedUser) {
+        setUser(JSON.parse(storedUser))
+      } else {
+        // Create mock user from email if available
+        const userEmail = localStorage.getItem('userEmail')
+        if (userEmail) {
+          const mockUser: User = {
+            id: 0,
+            name: userEmail.split('@')[0],
+            email: userEmail,
+            created_at: new Date().toISOString()
+          }
+          setUser(mockUser)
+        }
+      }
+      
+      setIsInitialized(true)
+    }
+  }, [])
 
   const getAllQuestions = (): Question[] => {
     let allQuestions = [...SURVEY_QUESTIONS.general]
@@ -55,11 +88,35 @@ export default function Survey() {
   const submitSurvey = async (data: Partial<SurveyData>) => {
     setIsSubmitting(true)
     try {
-      const result = await apiService.submitSurvey(data)
+      // Add email and role from localStorage
+      const email = localStorage.getItem('userEmail')
+      const role = localStorage.getItem('selectedRole')
+      
+      const surveyDataWithExtras = {
+        ...data,
+        email: email || 'guest@example.com',
+        role: role || data.role
+      }
+      
+      console.log('Submitting survey data:', surveyDataWithExtras)
+      
+      const result = await apiService.submitSurvey(surveyDataWithExtras)
       storageService.setSurveyId(result.survey_id)
-      router.push('/auth')
+      
+      // Save learning path data if returned
+      if (result.learning_path) {
+        localStorage.setItem('learningPath', JSON.stringify(result.learning_path))
+      }
+      
+      // Set temporary access token for dashboard access
+      localStorage.setItem('tempAccessToken', `survey_${result.survey_id}_${Date.now()}`)
+      
+      // Navigate to analyzing page
+      router.push('/analyzing')
     } catch (error) {
       console.error('Error submitting survey:', error)
+      const errorMessage = error instanceof Error ? error.message : 'Failed to submit survey'
+      alert(`Failed to submit survey: ${errorMessage}\n\nPlease check the console for more details.`)
     } finally {
       setIsSubmitting(false)
     }
@@ -111,6 +168,15 @@ export default function Survey() {
     ? surveyData[currentQuestion.id as keyof SurveyData] as string[]
     : []
 
+  // Show loading until initialized
+  if (!isInitialized) {
+    return (
+      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">
+        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-orange-500"></div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-gray-900 text-white">
       {/* Header */}
@@ -121,11 +187,7 @@ export default function Survey() {
           </div>
           <span className="text-xl font-bold">codefinity</span>
         </div>
-        <button className="text-gray-400 hover:text-white">
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
-        </button>
+        {user && <UserAvatar user={user} showName={true} />}
       </header>
 
       {/* Progress Bar */}

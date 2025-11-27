@@ -2,19 +2,45 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { apiService, type LearningPathWithSchedules as LearningPath, type DailySchedule, type Video, type Resource } from '@/lib/api'
+import { apiService, type LearningPathWithSchedules as LearningPath, type DailySchedule, type Video, type Resource, type User } from '@/lib/api'
+import { UserAvatar } from '@/components/ui'
 
 export default function Dashboard() {
   const router = useRouter()
   const [learningPath, setLearningPath] = useState<LearningPath | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [selectedDay, setSelectedDay] = useState<DailySchedule | null>(null)
+  const [user, setUser] = useState<User | null>(null)
 
   useEffect(() => {
     const authToken = localStorage.getItem('authToken')
-    if (!authToken) {
+    const tempAccessToken = localStorage.getItem('tempAccessToken')
+    const hasAccess = authToken || tempAccessToken
+    
+    if (!hasAccess) {
       router.push('/auth')
       return
+    }
+
+    // Load user info from localStorage or fetch if we have authToken
+    const storedUser = localStorage.getItem('user')
+    if (storedUser) {
+      setUser(JSON.parse(storedUser))
+    } else if (authToken) {
+      fetchUserInfo(authToken)
+    } else {
+      // Create a mock user from email if no auth token
+      const userEmail = localStorage.getItem('userEmail')
+      if (userEmail) {
+        const mockUser: User = {
+          id: 0,
+          name: userEmail.split('@')[0],
+          email: userEmail,
+          created_at: new Date().toISOString()
+        }
+        setUser(mockUser)
+        localStorage.setItem('user', JSON.stringify(mockUser))
+      }
     }
 
     // Try to get learning path from localStorage first
@@ -26,6 +52,16 @@ export default function Dashboard() {
       setIsLoading(false)
     }
   }, [router])
+
+  const fetchUserInfo = async (authToken: string) => {
+    try {
+      const userData = await apiService.getUserInfo(authToken)
+      setUser(userData)
+      localStorage.setItem('user', JSON.stringify(userData))
+    } catch (error) {
+      console.error('Error fetching user info:', error)
+    }
+  }
 
   const fetchFullLearningPath = async (pathId: number) => {
     try {
@@ -62,7 +98,11 @@ export default function Dashboard() {
 
   const logout = () => {
     localStorage.removeItem('authToken')
+    localStorage.removeItem('tempAccessToken')
     localStorage.removeItem('learningPath')
+    localStorage.removeItem('user')
+    localStorage.removeItem('userEmail')
+    localStorage.removeItem('surveyId')
     router.push('/')
   }
 
@@ -109,12 +149,15 @@ export default function Dashboard() {
               </div>
               <span className="text-xl font-bold">codefinity</span>
             </div>
-            <button
-              onClick={logout}
-              className="text-gray-400 hover:text-white px-4 py-2 rounded-lg border border-gray-600 hover:border-gray-500"
-            >
-              Logout
-            </button>
+            <div className="flex items-center space-x-4">
+              {user && <UserAvatar user={user} showName={true} />}
+              <button
+                onClick={logout}
+                className="text-gray-400 hover:text-white px-4 py-2 rounded-lg border border-gray-600 hover:border-gray-500"
+              >
+                Logout
+              </button>
+            </div>
           </div>
         </div>
       </header>

@@ -67,6 +67,14 @@ export interface LearningPathWithSchedules extends LearningPath {
   daily_schedules: DailySchedule[]
 }
 
+export interface User {
+  id: number
+  name: string
+  email: string
+  picture?: string  // Avatar image URL from Google or other OAuth providers
+  created_at: string
+}
+
 class ApiService {
   private async fetchApi(endpoint: string, options?: RequestInit) {
     const url = `${API_BASE_URL}${endpoint}`
@@ -123,6 +131,14 @@ class ApiService {
 
   async healthCheck() {
     return this.fetchApi('/api/health')
+  }
+
+  async getUserInfo(authToken: string): Promise<User> {
+    return this.fetchApi('/api/user/me', {
+      headers: {
+        'Authorization': `Bearer ${authToken}`,
+      },
+    })
   }
 }
 

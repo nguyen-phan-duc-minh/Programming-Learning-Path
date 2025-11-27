@@ -58,15 +58,18 @@ class AuthService:
             user = User(
                 google_id=user_info['sub'],
                 email=user_info['email'],
-                name=user_info['name']
+                name=user_info['name'],
+                picture=user_info.get('picture')  # Get profile picture from Google
             )
             db.session.add(user)
             db.session.commit()
         else:
-            # Update google_id if user exists but google_id is different
+            # Update google_id and picture if user exists
             if user.google_id != user_info['sub']:
                 user.google_id = user_info['sub']
-                db.session.commit()
+            if user_info.get('picture') and user.picture != user_info.get('picture'):
+                user.picture = user_info.get('picture')
+            db.session.commit()
         
         # Generate JWT token
         jwt_token = AuthService._generate_jwt_token(user.id)
