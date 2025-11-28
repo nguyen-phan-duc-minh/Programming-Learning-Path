@@ -130,6 +130,15 @@ export default function Survey() {
     }
   }
 
+  const handleLogout = () => {
+    localStorage.clear()
+    router.push('/')
+  }
+
+  const handleProfile = () => {
+    router.push('/profile')
+  }
+
   const handleMultipleChoice = (value: string) => {
     const currentValues = Array.isArray(surveyData[currentQuestion?.id as keyof SurveyData]) 
       ? surveyData[currentQuestion?.id as keyof SurveyData] as string[]
@@ -181,13 +190,24 @@ export default function Survey() {
     <div className="min-h-screen bg-gray-900 text-white">
       {/* Header */}
       <header className="flex justify-between items-center p-6">
-        <div className="flex items-center space-x-2">
+        <button 
+          onClick={() => router.push('/')}
+          className="flex items-center space-x-2 hover:opacity-80 transition-opacity"
+        >
           <div className="w-8 h-8 bg-orange-500 rounded flex items-center justify-center">
             <span className="text-white font-bold">&lt;/&gt;</span>
           </div>
           <span className="text-xl font-bold">codefinity</span>
-        </div>
-        {user && <UserAvatar user={user} showName={true} />}
+        </button>
+        {user && (
+          <UserAvatar 
+            user={user} 
+            showName={true} 
+            showDropdown={true}
+            onProfile={handleProfile}
+            onLogout={handleLogout}
+          />
+        )}
       </header>
 
       {/* Progress Bar */}
